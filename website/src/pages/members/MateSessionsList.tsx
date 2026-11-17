@@ -22,6 +22,7 @@ import { ChevronDown, ChevronRight } from 'lucide-react'
 import { api } from '../../api/client'
 import { apiErrorCode, isNotFoundError } from '../../api/apiError'
 import ErrorNotice from '../../components/ErrorNotice'
+import { Btn } from '../../components/ui'
 import type { ChatSlot, CrewWorker, CrewWorkerRecap } from '../../types'
 import {
   CREW_FINISHED_GROUP,
@@ -216,7 +217,12 @@ function MateSessionRow({ root, worker, open, onToggle, confirmLeave, openOnChat
  *  unsaved-edits question. A closed session is reopened from its saved
  *  conversation first, as the chat page's Workers list does; when that fails the
  *  person stays here and the line under the button says so. A session on another
- *  crew names no local session, so it gets a line instead of a button. */
+ *  crew names no local session, so it gets a line instead of a button.
+ *
+ *  A closed row says so above its button: nothing else on the row or in the
+ *  recap marks the session closed (the recap's status line is the work item's,
+ *  which can still read "In progress"), and without that "Reopen" reads as
+ *  though it might rerun the work. The line names the safe outcome instead. */
 function OpenSessionAction({ worker, title, confirmLeave, openOnChatPage }: {
   worker: CrewWorker; title: string; confirmLeave: () => Promise<boolean>; openOnChatPage: (key: string) => void
 }) {
@@ -225,6 +231,9 @@ function OpenSessionAction({ worker, title, confirmLeave, openOnChatPage }: {
   const store = useAppStore()
   const [opening, setOpening] = useState(false)
   const [failed, setFailed] = useState(false)
+  // A reopen that succeeded without taking the view: the session is live again
+  // while the person stays here, so the row says so instead of showing nothing.
+  const [reopenedHere, setReopenedHere] = useState(false)
   const mounted = useRef(true)
   // Set in the setup half too: StrictMode runs cleanup then setup again in development.
   useEffect(() => { mounted.current = true; return () => { mounted.current = false } }, [])
@@ -237,6 +246,7 @@ function OpenSessionAction({ worker, title, confirmLeave, openOnChatPage }: {
   const open = async () => {
     if (opening) return
     setFailed(false)
+    setReopenedHere(false)
     // shortcut: the question comes before the reopen, as the decision asks, so a
     // discard the person agreed to stays discarded when the reopen then fails.
     if (!(await confirmLeave()) || !mounted.current) return
@@ -249,8 +259,10 @@ function OpenSessionAction({ worker, title, confirmLeave, openOnChatPage }: {
     setOpening(false)
     if (!reopened.ok) { setFailed(true); return }
     // Not activated: the person picked another session while this one was
-    // reopening, and that newer pick wins.
+    // reopening, and that newer pick wins. The session is open again all the
+    // same, so the row says so rather than leaving a press with no visible result.
     if (reopened.activated) openOnChatPage(reopened.key)
+    else setReopenedHere(true)
   }
   const label = closed ? t('pages.membersPage.recap_reopen_session') : t('pages.membersPage.recap_open_session')
   const name = opening
@@ -259,17 +271,21 @@ function OpenSessionAction({ worker, title, confirmLeave, openOnChatPage }: {
   return (
     <div className="mt-2.5 flex flex-col items-start gap-2">
       {/* Says the session is closed and that a reopen runs nothing, so the
-          button does not read as restarting the work. */}
-      {closed && <p className="m-0 text-[12px] text-muted" data-testid="mate-session-closed-note">{t('pages.membersPage.recap_closed_note')}</p>}
-      {/* aria-disabled, not disabled: focus stays on the button while it works. */}
-      <button type="button" onClick={() => { void open() }} aria-disabled={opening || undefined} aria-busy={opening || undefined}
+          button does not read as restarting the work. The listed row keeps
+          `closed` until the list's next poll, so after a reopen that did not
+          take the view the "open again" line below replaces this one. */}
+      {closed && !reopenedHere && <p className="m-0 text-[12px] text-muted" data-testid="mate-session-closed-note">{t('pages.membersPage.recap_closed_note')}</p>}
+      {/* `busy`, not `disabled`: focus stays on the button while it works, and a
+          second press is swallowed by the button itself. */}
+      <Btn type="button" onClick={() => { void open() }} busy={opening}
         data-testid="mate-session-open" aria-label={name}
-        className="min-h-9 inline-flex items-center rounded-lg border border-border bg-bg-elevated px-3 py-1.5 text-[12.5px] font-medium text-text hover:bg-bg-hover transition-colors cursor-pointer aria-disabled:opacity-60 aria-disabled:cursor-default">
+        className="min-h-9 rounded-lg bg-bg-elevated px-3 py-1.5 text-[12.5px] font-medium">
         {opening ? t('pages.membersPage.recap_reopening') : label}
-      </button>
+      </Btn>
       {/* No hand-off: the Members page holds unsaved Profile, schedule and
           crew-editor drafts, and Ask the agent navigates away from them. */}
       {failed && <ErrorNotice variant="inline" message={t('commandCenter.worker_reopen_failed')} testId="mate-session-reopen-failed" />}
+      {reopenedHere && <p className="m-0 text-[12px] text-muted" role="status" data-testid="mate-session-reopened">{t('pages.membersPage.recap_reopened_stay')}</p>}
     </div>
   )
 }

@@ -2808,14 +2808,19 @@ page's unsaved-edits question (`confirmSessionLeave`, the Schedules guard
 is closed and that reopening reruns nothing (the row's group does not say
 "closed"); its button reads **Reopen session**: after the same question it
 reopens the session
-from its saved conversation with `reopenCrewSession`, the call the Crew panel's
-Workers list makes (with `keepPanel` false, so it lands as a live one does, with
+from its saved conversation with `reopenCrewSession`, the call behind the Crew panel's
+Workers list's own reopen (`reopenCrewWorker`), with `keepPanel` false (so it lands as a live one does, with
 no Workers panel held open), and opens it only when that reopen took the view;
 while it runs the button stays focusable (`aria-disabled`) and its name says
 "Reopening <title>…"; a failed
-reopen keeps the person on the page and says so under the button. A row with
+reopen keeps the person on the page and says so under the button, and a reopen
+that succeeded without taking the view (the person picked another session
+meanwhile) says under the button that the session is open again, in place of
+the closed-state line. A row with
 `remote_crew` names no local session, so it shows a line naming that crew and no
-button.
+button; the route lists no remote worker under a Bot root today (`api_crew_workers`
+appends them only for a Crew Mode root), so that line is a guard on the shared row
+type rather than a state the tab reaches.
 Child subagent runs remain presence for the roster but are not dashboard
 sessions. Every page-level request to open Profile — including a second use of
 the quiet-chat Sessions link after the reader changed card tabs or pushed a

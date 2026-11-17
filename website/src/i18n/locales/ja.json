@@ -22042,6 +22042,7 @@
       "recap_reopening_named": "{{title}} を再度開いています…",
       "recap_open_remote": "このセッションは {{crew}} で動いています。そのクルーから開いてください。",
       "recap_closed_note": "このセッションは閉じています。再度開くと保存された会話が戻ります。何も再実行されません。",
+      "recap_reopened_stay": "セッションは再び開いています。ボタンを押すと移動できます。",
       "recap_status": "状態",
       "recap_last_report": "最新の報告",
       "recap_pr": "プルリクエスト",

@@ -424,17 +424,16 @@ export function useMembersPageSidePanel({
   // Opening one of the crewmate's sessions leaves `/members` for `/chat` outright, so it
   // destroys the Schedules form as surely as the identity pill does. It is a raw
   // `navigate`, which the leave channel never sees -- only callers that ask reach it --
-  // so it asks here, like every other exit.
-  const openSessionGuarded = useCallback((key: string) => {
-    if (!schedAtStakeRef.current()) { openSessionOnChatPage(key); return }
-    void schedGuardRef.current().then((ok) => { if (ok) openSessionOnChatPage(key) })
-  }, [openSessionOnChatPage, schedAtStakeRef, schedGuardRef])
-  // The same question on its own, for an exit with a step between the answer and
-  // the navigation: the Sessions tab reopens a closed session only after it.
+  // so it asks here, like every other exit. The question stands on its own
+  // (`confirmSessionLeave`) for an exit with a step between the answer and the
+  // navigation: the Sessions tab reopens a closed session only after it.
   const confirmSessionLeave = useCallback(
     (): Promise<boolean> => (schedAtStakeRef.current() ? schedGuardRef.current() : Promise.resolve(true)),
     [schedAtStakeRef, schedGuardRef],
   )
+  const openSessionGuarded = useCallback((key: string) => {
+    void confirmSessionLeave().then((ok) => { if (ok) openSessionOnChatPage(key) })
+  }, [confirmSessionLeave, openSessionOnChatPage])
   const drivingSessions = useMemo(() => {
     if (!activeMemberKey) return []
     // Every session in the mate's tree, by the server's own `mate_root` stamp: an

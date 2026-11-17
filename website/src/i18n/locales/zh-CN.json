@@ -22042,6 +22042,7 @@
       "recap_reopening_named": "正在重新打开 {{title}}…",
       "recap_open_remote": "此会话运行在 {{crew}} 上。请从那个团队打开。",
       "recap_closed_note": "此会话已关闭。重新打开会恢复保存的对话，不会重新运行任何内容。",
+      "recap_reopened_stay": "会话已再次打开。按下按钮即可前往。",
       "recap_status": "状态",
       "recap_last_report": "最新报告",
       "recap_pr": "拉取请求",

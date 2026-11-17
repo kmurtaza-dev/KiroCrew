@@ -189,10 +189,22 @@ describe('MateSessionsList Open session', () => {
     const open = screen.getByRole('button', { name: 'Open session: Release notes' })
     expect(open.textContent).toBe('Open session')
     expect(screen.getByRole('region', { name: 'Release notes' }).contains(open)).toBe(true)
+    // A live row is not closed, so nothing says it is.
+    expect(screen.queryByTestId('mate-session-closed-note')).toBeNull()
     fireEvent.click(open)
     await waitFor(() => expect(openOnChatPage).toHaveBeenCalledWith('m1'))
     expect(confirmLeave).toHaveBeenCalledTimes(1)
     expect(reopenCrewSession).not.toHaveBeenCalled()
+  })
+
+  it('puts the closed-state line above the Reopen button, inside the row', async () => {
+    await openRecap(worker('m3', { title: 'Old task', group: 'done', status: 'closed' }))
+    const reopen = screen.getByRole('button', { name: 'Reopen session: Old task' })
+    const note = screen.getByTestId('mate-session-closed-note')
+    expect(note.textContent).toBe('This session is closed. Reopening brings back its saved conversation; nothing runs again.')
+    // Above the button, inside the same region, so the state is read before the control.
+    expect(screen.getByRole('region', { name: 'Old task' }).contains(note)).toBe(true)
+    expect(note.compareDocumentPosition(reopen) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   })
 
   it('stays on the page when the person keeps their unsaved edits', async () => {
@@ -275,9 +287,19 @@ describe('MateSessionsList Open session', () => {
     await openRecap(worker('m3', { title: 'Old task', group: 'done', status: 'closed' }))
     fireEvent.click(screen.getByRole('button', { name: 'Reopen session: Old task' }))
     await waitFor(() => expect(reopenCrewSession).toHaveBeenCalledTimes(1))
-    await act(async () => {})
+    // The session is open again all the same, so the row says so where the press landed,
+    // and the closed-state line gives way to it (the listed row stays `closed` until the
+    // list's next poll, and the two lines must never contradict each other).
+    expect((await screen.findByTestId('mate-session-reopened')).textContent).toBe('The session is open again. Press the button to go to it.')
+    expect(screen.queryByTestId('mate-session-closed-note')).toBeNull()
     expect(openOnChatPage).not.toHaveBeenCalled()
     expect(screen.queryByTestId('mate-session-reopen-failed')).toBeNull()
+    // A failed reopen never shows that line, and the next press clears it.
+    reopenCrewSession.mockResolvedValueOnce({ ok: false, activated: false, key: 'm3' })
+    fireEvent.click(screen.getByRole('button', { name: 'Reopen session: Old task' }))
+    await screen.findByTestId('mate-session-reopen-failed')
+    expect(screen.queryByTestId('mate-session-reopened')).toBeNull()
+    expect(screen.getByTestId('mate-session-closed-note')).toBeTruthy()
   })
 
   it('offers no button for a session on another crew and says why', async () => {

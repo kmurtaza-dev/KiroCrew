@@ -22601,6 +22601,7 @@
       "recap_reopening_named": "{{title}} wird wieder geöffnet…",
       "recap_open_remote": "Diese Sitzung läuft auf {{crew}}. Öffne sie in dieser Crew.",
       "recap_closed_note": "Diese Sitzung ist geschlossen. Beim Wiederöffnen kommt ihr gespeichertes Gespräch zurück; nichts läuft erneut.",
+      "recap_reopened_stay": "Die Sitzung ist wieder offen. Drücke die Schaltfläche, um zu ihr zu wechseln.",
       "recap_status": "Status",
       "recap_last_report": "Letzter Bericht",
       "recap_pr": "Pull-Request",

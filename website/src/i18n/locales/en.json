@@ -9472,6 +9472,7 @@
       "recap_reopening_named": "Reopening {{title}}…",
       "recap_open_remote": "This session runs on {{crew}}. Open it from that crew.",
       "recap_closed_note": "This session is closed. Reopening brings back its saved conversation; nothing runs again.",
+      "recap_reopened_stay": "The session is open again. Press the button to go to it.",
       "recap_status": "Status",
       "recap_last_report": "Last report",
       "recap_pr": "Pull request",

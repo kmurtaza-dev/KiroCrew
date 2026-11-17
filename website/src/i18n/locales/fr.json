@@ -23160,6 +23160,7 @@
       "recap_reopening_named": "Réouverture de {{title}}…",
       "recap_open_remote": "Cette session tourne sur {{crew}}. Ouvre-la depuis cette crew.",
       "recap_closed_note": "Cette session est fermée. La rouvrir ramène sa conversation enregistrée\u202f; rien ne se relance.",
+      "recap_reopened_stay": "La session est de nouveau ouverte. Appuie sur le bouton pour y aller.",
       "recap_status": "Statut",
       "recap_last_report": "Dernier rapport",
       "recap_pr": "Pull request",

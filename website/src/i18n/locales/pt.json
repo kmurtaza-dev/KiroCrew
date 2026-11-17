@@ -23160,6 +23160,7 @@
       "recap_reopening_named": "Reabrindo {{title}}…",
       "recap_open_remote": "Esta sessão roda em {{crew}}. Abra-a nessa crew.",
       "recap_closed_note": "Esta sessão está fechada. Reabrir traz de volta a conversa salva; nada roda de novo.",
+      "recap_reopened_stay": "A sessão está aberta de novo. Pressione o botão para ir até ela.",
       "recap_status": "Status",
       "recap_last_report": "Último relatório",
       "recap_pr": "Pull request",
